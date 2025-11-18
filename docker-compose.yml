@@ -1,0 +1,7 @@
+version: '3'
+services:
+  threejs-app:
+    image: alexv31/threejs:app
+    ports:
+      - "3012:80"
+      - "3013:443"
