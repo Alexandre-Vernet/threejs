@@ -2,8 +2,11 @@ import * as THREE from 'three';
 
 export const house = () => {
   const houseGroup = new THREE.Group();
+  const loader = new THREE.TextureLoader();
+  const texture = loader.load('textures/house/bricks.jpg');
+
   const houseGeometry = new THREE.BoxGeometry(2, 1.5, 2);
-  const houseMaterial = new THREE.MeshStandardMaterial({ color: 0xffddcc });
+  const houseMaterial = new THREE.MeshStandardMaterial({ map: texture });
   const house = new THREE.Mesh(houseGeometry, houseMaterial);
   houseGroup.add(house);
 

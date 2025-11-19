@@ -6,10 +6,12 @@ import { tree } from './tree';
 import { house } from './house';
 import { ambiant } from './ambiant';
 import { road } from './road';
-import { car } from './car';
 import { camera } from './camera';
 import { keyboard } from './keyboard';
 import { moulin } from './moulin';
+import { picnicTable } from './picnicTable';
+import { trackCar } from './track-car';
+import { getRandomNumberInRange } from './getRandomNumberInRange';
 
 @Component({
   selector: 'app-root',
@@ -28,20 +30,38 @@ export class App implements OnInit {
 
     const houseGroup = house();
     const treeGroup = tree();
-    const carGroup = car();
     const roadMesh = road();
     const moulinGroup = moulin();
     scene.add(roadMesh);
-    ground(scene);
+    ground(scene, renderer);
     ambiant(scene);
-
     const obstacles = new THREE.Group();
+
+
+    const carList: THREE.Group<THREE.Object3DEventMap>[] = [];
+    (async () => {
+      const picnic = await picnicTable();
+      obstacles.add(picnic);
+
+      setInterval(async () => {
+        const car = await trackCar();
+        car.position.x = getRandomNumberInRange(-50, 50);
+        const shortRandomNumber = Math.round(Math.random()) % 2;
+        if (shortRandomNumber) {
+          car.position.z = 4;
+        } else {
+          car.position.z = 6;
+          car.rotation.y = -Math.PI / 2;
+        }
+        carList.push(car);
+        obstacles.add(car);
+      }, 1000)
+    })();
+
     obstacles.add(houseGroup);
     obstacles.add(treeGroup);
-    obstacles.add(carGroup);
     obstacles.add(moulinGroup);
     scene.add(obstacles);
-
 
     const perspectiveCamera = camera();
 
@@ -57,7 +77,6 @@ export class App implements OnInit {
       controls.lock();
     });
 
-    let goBack = false;
 
     const keys = keyboard();
 
@@ -67,24 +86,33 @@ export class App implements OnInit {
 
     const wings = [leftWing, rightWing];
 
+    let speed = 0.1;
+
     function animate() {
       requestAnimationFrame(animate);
       const oldPosition = perspectiveCamera.position.clone();
 
-      if (!goBack) {
-        carGroup.position.x += 0.05;
-        if (carGroup.position.x >= 30) goBack = true;
-      } else {
-        carGroup.position.x -= 0.05;
-        if (carGroup.position.x <= -30) goBack = false;
-      }
+      carList?.forEach(car => {
+        if (car.position.z === 4) {
+          car.position.x -= 0.05;
+          if (car.position.x <= -75) {
+            car.clear();
+          }
+        } else {
+          car.position.x += 0.05;
+          if (car.position.x >= 75) {
+            car.clear();
+          }
+        }
+      });
 
-      const speed = 0.1;
       if (keys.forward) controls.moveForward(speed);
       if (keys.backward) controls.moveForward(-speed);
       if (keys.left) controls.moveRight(-speed);
       if (keys.right) controls.moveRight(speed);
       if (keys.flyUp) perspectiveCamera.position.y += speed;
+      if (keys.sprint) speed = 0.5;
+      if (!keys.sprint) speed = 0.1;
       if (keys.flyDown && perspectiveCamera.position.y > 1) {
         perspectiveCamera.position.y -= speed;
       }
@@ -106,11 +134,5 @@ export class App implements OnInit {
 
 
     animate();
-  }
-
-  getRandomInt(min: number, max: number) {
-    const minCeiled = Math.ceil(min);
-    const maxFloored = Math.floor(max);
-    return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
   }
 }

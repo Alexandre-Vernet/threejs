@@ -1,5 +1,13 @@
 export const keyboard = () => {
-  const keys = { forward: false, backward: false, left: false, right: false, flyUp: false, flyDown: false };
+  const keys = {
+    forward: false,
+    backward: false,
+    left: false,
+    right: false,
+    flyUp: false,
+    flyDown: false,
+    sprint: false
+  };
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "z") keys.forward = true;
@@ -8,6 +16,7 @@ export const keyboard = () => {
     if (e.key === "d") keys.right = true;
     if (e.key === " ") keys.flyUp = true;
     if (e.key === "Control") keys.flyDown = true;
+    if (e.key === "Shift") keys.sprint = true;
   });
 
   document.addEventListener("keyup", (e) => {
@@ -17,6 +26,7 @@ export const keyboard = () => {
     if (e.key === "d") keys.right = false;
     if (e.key === " ") keys.flyUp = false;
     if (e.key === "Control") keys.flyDown = false;
+    if (e.key === "Shift") keys.sprint = false;
   });
 
   return keys;

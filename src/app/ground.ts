@@ -1,8 +1,37 @@
 import * as THREE from 'three';
 
-export const ground = (scene: THREE.Scene<THREE.Object3DEventMap>) => {
+export const ground = (scene: THREE.Scene<THREE.Object3DEventMap>, renderer:THREE.WebGLRenderer) => {
+
+  const loader = new THREE.TextureLoader();
+  const diff = loader.load('textures/ground/sparse_grass_diff_4k.jpg');
+  const arm = loader.load('textures/ground/sparse_grass_arm_4k.jpg');
+  const gl = loader.load('textures/ground/sparse_grass_nor_gl_4k.jpg');
+
+  diff.wrapS = diff.wrapT = THREE.RepeatWrapping;
+  gl.wrapS = gl.wrapT = THREE.RepeatWrapping;
+  arm.wrapS = arm.wrapT = THREE.RepeatWrapping;
+
+  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+  diff.anisotropy = maxAniso;
+  gl.anisotropy = maxAniso;
+  arm.anisotropy = maxAniso;
+
+
+  diff.repeat.set(20, 20);
+  gl.repeat.set(20, 20);
+  arm.repeat.set(20, 20);
+
+
   const groundGeometry = new THREE.PlaneGeometry(200, 200);
-  const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x289C28 });
+
+  const groundMaterial = new THREE.MeshStandardMaterial({
+    map: diff,
+    normalMap: gl,
+    aoMap: arm,
+    // roughnessMap: arm,
+    // metalnessMap: arm,
+  });
   const ground = new THREE.Mesh(groundGeometry, groundMaterial);
   ground.rotation.x = -Math.PI / 2;
   ground.position.set(0, 0, 0);
