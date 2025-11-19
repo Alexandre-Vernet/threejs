@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import * as THREE from 'three';
+import * as T from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { ground } from './ground';
 import { tree } from './tree';
@@ -22,23 +22,23 @@ import { getRandomNumberInRange } from './getRandomNumberInRange';
 export class App implements OnInit {
 
   ngOnInit() {
-    const scene = new THREE.Scene();
+    const scene = new T.Scene();
 
-    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("app"), antialias: true, alpha: true });
+    const renderer = new T.WebGLRenderer({ canvas: document.getElementById("app"), antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-    const houseGroup = house();
-    const treeGroup = tree();
-    const roadMesh = road();
+    const houseGroup = house(renderer);
+    const treeGroup = tree(renderer);
+    const roadMesh = road(renderer);
     const moulinGroup = moulin();
     scene.add(roadMesh);
     ground(scene, renderer);
     ambiant(scene);
-    const obstacles = new THREE.Group();
+    const obstacles = new T.Group();
 
 
-    const carList: THREE.Group<THREE.Object3DEventMap>[] = [];
+    const carList: T.Group<T.Object3DEventMap>[] = [];
     (async () => {
       const picnic = await picnicTable();
       obstacles.add(picnic);
@@ -65,9 +65,9 @@ export class App implements OnInit {
 
     const perspectiveCamera = camera();
 
-    const cameraBB = new THREE.Box3(
-      new THREE.Vector3(),
-      new THREE.Vector3()
+    const cameraBB = new T.Box3(
+      new T.Vector3(),
+      new T.Vector3()
     );
 
 
@@ -117,10 +117,10 @@ export class App implements OnInit {
         perspectiveCamera.position.y -= speed;
       }
 
-      cameraBB.setFromCenterAndSize(perspectiveCamera.position, new THREE.Vector3(0.1, 1.7, 0.1));
+      cameraBB.setFromCenterAndSize(perspectiveCamera.position, new T.Vector3(0.1, 1.7, 0.1));
 
       obstacles.children.forEach(obj => {
-        const bb = new THREE.Box3().setFromObject(obj);
+        const bb = new T.Box3().setFromObject(obj);
 
         if (cameraBB.intersectsBox(bb)) {
           perspectiveCamera.position.copy(oldPosition)

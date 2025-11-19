@@ -10,6 +10,7 @@ export const keyboard = () => {
   };
 
   document.addEventListener("keydown", (e) => {
+    e.preventDefault();
     if (e.key === "z") keys.forward = true;
     if (e.key === "s") keys.backward = true;
     if (e.key === "q") keys.left = true;
@@ -20,6 +21,7 @@ export const keyboard = () => {
   });
 
   document.addEventListener("keyup", (e) => {
+    e.preventDefault();
     if (e.key === "z") keys.forward = false;
     if (e.key === "s") keys.backward = false;
     if (e.key === "q") keys.left = false;

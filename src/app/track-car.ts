@@ -34,7 +34,7 @@ const applyTexture = async (carName: string) => {
   const loader = new GLTFLoader();
   const gltf = await loader.loadAsync(texturePath + carName);
   const car = gltf.scene;
-  car.scale.set(1, 1, 1);
+  car.scale.set(2, 2, 2);
   car.position.set(3, 0, 4);
   car.rotation.y = Math.PI / 2;
 
