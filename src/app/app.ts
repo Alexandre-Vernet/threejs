@@ -12,6 +12,7 @@ import { moulin } from './moulin';
 import { picnicTable } from './picnicTable';
 import { trackCar } from './track-car';
 import { getRandomNumberInRange } from './getRandomNumberInRange';
+import { playSound } from './playSound';
 
 @Component({
   selector: 'app-root',
@@ -87,6 +88,21 @@ export class App implements OnInit {
     const wings = [leftWing, rightWing];
 
     let speed = 0.1;
+
+    let enableSound = false;
+
+    document.addEventListener("keyup", (e) => {
+      if (e.key === 'm') {
+        enableSound = !enableSound;
+      }
+    });
+
+    setInterval(() => {
+      if (enableSound) {
+        playSound();
+      }
+    }, 5000);
+
 
     function animate() {
       requestAnimationFrame(animate);
