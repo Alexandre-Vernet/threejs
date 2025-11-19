@@ -2,35 +2,47 @@ import * as T from 'three';
 import { getRandomNumberInRange } from './getRandomNumberInRange';
 
 export class Tree {
+
   renderer: T.WebGLRenderer;
+  texture = {
+    diff: null,
+    gl: null,
+    arm: null
+  }
 
   constructor(renderer: T.WebGLRenderer) {
     this.renderer = renderer;
   }
 
-  simpleTree() {
+  private initTree() {
     const treeGroup = new T.Group();
 
     const loader = new T.TextureLoader();
-    const diff = loader.load('textures/tree/bark_willow_02_diff_4k.jpg');
-    const arm = loader.load('textures/tree/bark_willow_02_arm_4k.jpg');
-    const gl = loader.load('textures/tree/bark_willow_02_nor_gl_4k.jpg');
+    this.texture.diff = loader.load('textures/tree/bark_willow_02_diff_4k.jpg');
+    this.texture.arm = loader.load('textures/tree/bark_willow_02_arm_4k.jpg');
+    this.texture.gl = loader.load('textures/tree/bark_willow_02_nor_gl_4k.jpg');
 
-    diff.wrapS = diff.wrapT = T.RepeatWrapping;
-    gl.wrapS = gl.wrapT = T.RepeatWrapping;
-    arm.wrapS = arm.wrapT = T.RepeatWrapping;
+    this.texture.diff.wrapS = this.texture.diff.wrapT = T.RepeatWrapping;
+    this.texture.gl.wrapS = this.texture.gl.wrapT = T.RepeatWrapping;
+    this.texture.arm.wrapS = this.texture.arm.wrapT = T.RepeatWrapping;
 
     const maxAniso = this.renderer.capabilities.getMaxAnisotropy();
 
-    diff.anisotropy = maxAniso;
-    gl.anisotropy = maxAniso;
-    arm.anisotropy = maxAniso;
+    this.texture.diff.anisotropy = maxAniso;
+    this.texture.gl.anisotropy = maxAniso;
+    this.texture.arm.anisotropy = maxAniso;
+
+    return treeGroup;
+  }
+
+  simpleTree() {
+    const treeGroup = this.initTree();
 
     const treeGeometry = new T.BoxGeometry(.5, 2, .5);
     const treeMaterial = new T.MeshStandardMaterial({
-      map: diff,
-      normalMap: gl,
-      aoMap: arm,
+      map: this.texture.diff,
+      normalMap: this.texture.gl,
+      aoMap: this.texture.arm,
     });
     const tree = new T.Mesh(treeGeometry, treeMaterial);
     tree.position.set(3, 0, 0);
@@ -48,31 +60,16 @@ export class Tree {
   }
 
   forest() {
-    const treeGroup = new T.Group();
-
-    const loader = new T.TextureLoader();
-    const diff = loader.load('textures/tree/bark_willow_02_diff_4k.jpg');
-    const arm = loader.load('textures/tree/bark_willow_02_arm_4k.jpg');
-    const gl = loader.load('textures/tree/bark_willow_02_nor_gl_4k.jpg');
-
-    diff.wrapS = diff.wrapT = T.RepeatWrapping;
-    gl.wrapS = gl.wrapT = T.RepeatWrapping;
-    arm.wrapS = arm.wrapT = T.RepeatWrapping;
-
-    const maxAniso = this.renderer.capabilities.getMaxAnisotropy();
-
-    diff.anisotropy = maxAniso;
-    gl.anisotropy = maxAniso;
-    arm.anisotropy = maxAniso;
+    const treeGroup = this.initTree();
 
     for (let i = 0; i < 75; i++) {
       const size = getRandomNumberInRange(.1, 3);
       const treeHeight = getRandomNumberInRange(2, 15);
       const treeGeometry = new T.BoxGeometry(size, treeHeight, size);
       const treeMaterial = new T.MeshStandardMaterial({
-        map: diff,
-        normalMap: gl,
-        aoMap: arm,
+        map: this.texture.diff,
+        normalMap: this.texture.gl,
+        aoMap: this.texture.arm,
       });
 
       const treeLeaf = new T.Group();
