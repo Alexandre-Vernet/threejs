@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as T from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { ground } from './ground';
-import { tree } from './tree';
+import { Tree } from './Tree';
 import { house } from './house';
 import { ambiant } from './ambiant';
 import { road } from './road';
@@ -30,9 +30,10 @@ export class App implements OnInit {
 
 
     const houseGroup = house(renderer);
-    const treeGroup = tree(renderer);
+    const treeGroup = new Tree(renderer).simpleTree();
     const roadMesh = road(renderer);
     const moulinGroup = moulin();
+    const forestGroup = new Tree(renderer).forest();
     scene.add(roadMesh);
     ground(scene, renderer);
     ambiant(scene);
@@ -62,6 +63,7 @@ export class App implements OnInit {
     obstacles.add(houseGroup);
     obstacles.add(treeGroup);
     obstacles.add(moulinGroup);
+    obstacles.add(forestGroup);
     scene.add(obstacles);
 
     const perspectiveCamera = camera();
