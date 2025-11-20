@@ -13,6 +13,7 @@ import { picnicTable } from './picnicTable';
 import { trackCar } from './track-car';
 import { getRandomNumberInRange } from './getRandomNumberInRange';
 import { playSound } from './playSound';
+import { characters } from './characters';
 
 @Component({
   selector: 'app-root',
@@ -43,7 +44,9 @@ export class App implements OnInit {
     const carList: T.Group<T.Object3DEventMap>[] = [];
     (async () => {
       const picnic = await picnicTable();
+      const char = await characters();
       obstacles.add(picnic);
+      obstacles.add(char);
 
       setInterval(async () => {
         const car = await trackCar();
