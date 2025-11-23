@@ -2,38 +2,31 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { getRandomNumberInRange } from './getRandomNumberInRange';
 
 export const characters = () => {
-  const character = 'abcdef'
-  const random = getRandomNumberInRange(0, 5);
+    const random = getRandomNumberInRange(0, 2);
 
-  const characterName = [
-    'character-male-',
-    'character-female-',
-  ];
+    const characterType = [
+        'character-male-',
+        'character-female-',
+    ];
 
-  switch (random) {
-    case 0:
-      return applyTexture(characterName[0]);
-    case 1:
-      return applyTexture(characterName[1]);
-    case 2:
-      return applyTexture(characterName[2]);
-    case 3:
-      return applyTexture(characterName[3]);
-    case 4:
-      return applyTexture(characterName[4]);
-    default:
-      return applyTexture(characterName[5]);
-  }
+    switch (random) {
+        case 0:
+            return applyTexture(characterType[0]);
+        default:
+            return applyTexture(characterType[1]);
+    }
 }
 
-const applyTexture = async (carName: string) => {
-  const texturePath = 'textures/characters/';
-  const loader = new GLTFLoader();
-  const gltf = await loader.loadAsync(texturePath + carName);
-  const car = gltf.scene;
-  car.scale.set(2, 2, 2);
-  car.position.set(3, 0, 4);
-  car.rotation.y = Math.PI / 2;
+const applyTexture = async (characterType: string) => {
+    const texturePath = 'models/characters/';
+    const allowedRandomCharacter = 'abcdef';
+    const random = getRandomNumberInRange(0, 5);
+    const loader = new GLTFLoader();
+    const gltf = await loader.loadAsync(texturePath + characterType + allowedRandomCharacter[random] + '.glb');
+    const character = gltf.scene;
+    character.scale.set(1.5, 1.5, 1.5);
+    character.position.set(3, 0, 4);
+    character.rotation.y = Math.PI / 2;
 
-  return car;
+    return character;
 }
