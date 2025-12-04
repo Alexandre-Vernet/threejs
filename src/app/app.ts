@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import * as T from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { ground } from './ground';
-import { Tree } from './Tree';
 import { House } from './house';
 import { ambiant } from './ambiant';
 import { road } from './road';
@@ -10,8 +9,7 @@ import { camera } from './camera';
 import { keyboard } from './keyboard';
 import { moulin } from './moulin';
 import { spawnCar } from './track-car';
-import { playSound } from './playSound';
-import { characters } from './characters';
+import { Characters } from './characters';
 
 @Component({
   selector: 'app-root',
@@ -24,13 +22,12 @@ export class App implements OnInit {
   ngOnInit() {
     const scene = new T.Scene();
 
-    const renderer = new T.WebGLRenderer({ canvas: document.getElementById("app"), antialias: true, alpha: true });
+    const renderer = new T.WebGLRenderer({ canvas: document.getElementById('app'), antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
 
     const roadMesh = road(renderer);
     const moulinGroup = moulin();
-    const forestGroup = new Tree(renderer).forest();
     scene.add(roadMesh);
     ground(scene, renderer);
     ambiant(scene);
@@ -39,13 +36,15 @@ export class App implements OnInit {
 
     const carList: T.Group<T.Object3DEventMap>[] = [];
     setInterval(async () => {
-     const c = await spawnCar();
-     carList.push(c);
-     obstacles.add(c);
-    }, 1000);
+      const c = await spawnCar();
+      carList.push(c);
+      obstacles.add(c);
+    }, 1500);
 
+    const c = new Characters();
+    let char: T.Group<T.Object3DEventMap>;
     (async () => {
-      const char = await characters();
+      char = await c.characters();
       const house = new House();
       const houseGroup = await house.generateHouses();
       obstacles.add(char);
@@ -53,7 +52,6 @@ export class App implements OnInit {
     })();
 
     obstacles.add(moulinGroup);
-    obstacles.add(forestGroup);
     scene.add(obstacles);
 
     const perspectiveCamera = camera();
@@ -66,7 +64,7 @@ export class App implements OnInit {
 
     const controls = new PointerLockControls(perspectiveCamera, document.body);
 
-    document.addEventListener("click", () => {
+    document.addEventListener('click', () => {
       controls.lock();
     });
 
@@ -81,24 +79,12 @@ export class App implements OnInit {
 
     let speed = 0.1;
 
-    let enableSound = false;
-
-    document.addEventListener("keyup", (e) => {
-      if (e.key === 'm') {
-        enableSound = !enableSound;
-      }
-    });
-
-    setInterval(() => {
-      if (enableSound) {
-        playSound();
-      }
-    }, 5000);
-
-
     function animate() {
       requestAnimationFrame(animate);
       const oldPosition = perspectiveCamera.position.clone();
+      if (char)
+        c.animateCharacters(char);
+
 
       carList?.forEach(car => {
         if (car.position.z === 4) {
