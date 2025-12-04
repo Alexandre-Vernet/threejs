@@ -3,15 +3,13 @@ import * as T from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { ground } from './ground';
 import { Tree } from './Tree';
-import { house } from './house';
+import { House } from './house';
 import { ambiant } from './ambiant';
 import { road } from './road';
 import { camera } from './camera';
 import { keyboard } from './keyboard';
 import { moulin } from './moulin';
-import { picnicTable } from './picnicTable';
-import { trackCar } from './track-car';
-import { getRandomNumberInRange } from './getRandomNumberInRange';
+import { spawnCar } from './track-car';
 import { playSound } from './playSound';
 import { characters } from './characters';
 
@@ -30,8 +28,6 @@ export class App implements OnInit {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-    const houseGroup = house(renderer);
-    const treeGroup = new Tree(renderer).simpleTree();
     const roadMesh = road(renderer);
     const moulinGroup = moulin();
     const forestGroup = new Tree(renderer).forest();
@@ -42,29 +38,20 @@ export class App implements OnInit {
 
 
     const carList: T.Group<T.Object3DEventMap>[] = [];
-    (async () => {
-      const picnic = await picnicTable();
-      const char = await characters();
-      obstacles.add(picnic);
-      obstacles.add(char);
+    setInterval(async () => {
+     const c = await spawnCar();
+     carList.push(c);
+     obstacles.add(c);
+    }, 1000);
 
-      setInterval(async () => {
-        const car = await trackCar();
-        car.position.x = getRandomNumberInRange(-50, 50);
-        const shortRandomNumber = Math.round(Math.random()) % 2;
-        if (shortRandomNumber) {
-          car.position.z = 4;
-        } else {
-          car.position.z = 6;
-          car.rotation.y = -Math.PI / 2;
-        }
-        carList.push(car);
-        obstacles.add(car);
-      }, 1000)
+    (async () => {
+      const char = await characters();
+      const house = new House();
+      const houseGroup = await house.generateHouses();
+      obstacles.add(char);
+      obstacles.add(houseGroup);
     })();
 
-    obstacles.add(houseGroup);
-    obstacles.add(treeGroup);
     obstacles.add(moulinGroup);
     obstacles.add(forestGroup);
     scene.add(obstacles);
@@ -116,12 +103,12 @@ export class App implements OnInit {
       carList?.forEach(car => {
         if (car.position.z === 4) {
           car.position.x -= 0.05;
-          if (car.position.x <= -75) {
+          if (car.position.x <= -99) {
             car.clear();
           }
         } else {
           car.position.x += 0.05;
-          if (car.position.x >= 75) {
+          if (car.position.x >= 99) {
             car.clear();
           }
         }
@@ -140,13 +127,13 @@ export class App implements OnInit {
 
       cameraBB.setFromCenterAndSize(perspectiveCamera.position, new T.Vector3(0.1, 1.7, 0.1));
 
-      obstacles.children.forEach(obj => {
-        const bb = new T.Box3().setFromObject(obj);
-
-        if (cameraBB.intersectsBox(bb)) {
-          perspectiveCamera.position.copy(oldPosition)
-        }
-      });
+      // obstacles.children.forEach(obj => {
+      //   const bb = new T.Box3().setFromObject(obj);
+      //
+      //   if (cameraBB.intersectsBox(bb)) {
+      //     perspectiveCamera.position.copy(oldPosition)
+      //   }
+      // });
 
       wings.forEach(w => w.rotation.z -= 0.01);
 

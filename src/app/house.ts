@@ -1,82 +1,70 @@
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as T from 'three';
+import { getRandomNumberInRange } from './getRandomNumberInRange';
 
-export const house = (renderer: T.WebGLRenderer) => {
-  const houseGroup = new T.Group();
-  const loader = new T.TextureLoader();
-  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+export class House {
+  houseGroup = new T.Group();
 
-  const wallDiff = loader.load('textures/house/wall/red_brick_diff_4k.jpg');
-  const wallArm = loader.load('textures/house/wall/red_brick_arm_4k.jpg');
-  const wallGl = loader.load('textures/house/wall/red_brick_nor_gl_4k.jpg');
+  async generateHouses() {
 
-  wallDiff.wrapS = wallDiff.wrapT = T.RepeatWrapping;
-  wallGl.wrapS = wallGl.wrapT = T.RepeatWrapping;
-  wallArm.wrapS = wallArm.wrapT = T.RepeatWrapping;
+    for (let i = -4; i < 5; i++) {
+      const h = await this.loadModelHouse();
 
+      // House
+      h.scale.set(10, 10, 10);
+      h.rotation.y = -Math.PI;
+      h.position.set(i * 20, 0, -10);
 
-  wallDiff.anisotropy = maxAniso;
-  wallGl.anisotropy = maxAniso;
-  wallArm.anisotropy = maxAniso;
+      // Fence
+      const f = await this.loadModelFence(i, -10);
 
-  const houseGeometry = new T.BoxGeometry(2, 1.5, 2);
-  const houseMaterial = new T.MeshStandardMaterial({
-    map: wallDiff,
-    normalMap: wallGl,
-    aoMap: wallArm
-  });
-  const house = new T.Mesh(houseGeometry, houseMaterial);
-  houseGroup.add(house);
+      this.houseGroup.add(h);
+      this.houseGroup.add(f);
+    }
 
+    for (let i = -4; i < 5; i++) {
+      const texturePath = 'models/city-kit/glb/';
+      const loader = new GLTFLoader();
+      const houseNameSuffix = 'building-type-';
+      const allowedRandomCharacter = 'abcdefghijklmno';
+      const random = getRandomNumberInRange(0, 15);
+      const houseGltf = await loader.loadAsync(texturePath + houseNameSuffix + allowedRandomCharacter[random] + '.glb');
 
-  const roofDiff = loader.load('textures/house/tiles/clay_roof_tiles_02_diff_4k.jpg');
-  const roofArm = loader.load('textures/house/tiles/clay_roof_tiles_02_arm_4k.jpg');
-  const roofGl = loader.load('textures/house/tiles/clay_roof_tiles_02_nor_gl_4k.jpg');
-
-  roofDiff.wrapS = roofDiff.wrapT = T.RepeatWrapping;
-  roofGl.wrapS = roofGl.wrapT = T.RepeatWrapping;
-  roofArm.wrapS = roofArm.wrapT = T.RepeatWrapping;
+      const h = houseGltf.scene;
+      h.scale.set(10, 10, 10);
+      h.position.set(i * 20, 0, 20);
 
 
-  roofDiff.anisotropy = maxAniso;
-  roofGl.anisotropy = maxAniso;
-  roofArm.anisotropy = maxAniso;
-
-  roofDiff.repeat.set(2, 2);
-  roofGl.repeat.set(2, 2);
-  roofArm.repeat.set(2, 2);
-
-  const roofGeometry = new T.ConeGeometry(1.6, 1, 4);
-  const roofMaterial = new T.MeshStandardMaterial({
-    map: roofDiff,
-    normalMap: roofGl,
-    aoMap: roofArm
-  });
-  const roof = new T.Mesh(roofGeometry, roofMaterial);
-
-  roof.position.y = 1.25;
-  roof.rotation.y = Math.PI / 4;
-  houseGroup.add(roof);
+      const f = await this.loadModelFence(i, 20);
 
 
-  const doorGeometry = new T.BoxGeometry(0.4, 0.8, 0.1);
-  const doorMaterial = new T.MeshStandardMaterial({ color: 0x553311 });
-  const door = new T.Mesh(doorGeometry, doorMaterial);
-  door.position.set(0, -0.33, 1.01);
-  houseGroup.add(door);
+      this.houseGroup.add(h);
+      this.houseGroup.add(f);
+    }
 
-  const windowLeftGeometry = new T.PlaneGeometry(.3, .3);
-  const windowLeftMaterial = new T.MeshStandardMaterial({ color: 0xffffff });
-  const windowLeft = new T.Mesh(windowLeftGeometry, windowLeftMaterial);
-  windowLeft.position.set(-.6, .4, 1.01);
-  houseGroup.add(windowLeft);
+    return this.houseGroup;
+  }
 
-  const windowRightGeometry = new T.PlaneGeometry(.3, .3);
-  const windowRightMaterial = new T.MeshStandardMaterial({ color: 0xffffff });
-  const windowRight = new T.Mesh(windowRightGeometry, windowRightMaterial);
-  windowRight.position.set(.6, .4, 1.01);
-  houseGroup.add(windowRight);
 
-  houseGroup.position.y = 1;
+  private async loadModelHouse() {
+    const texturePath = 'models/city-kit/glb/';
+    const loader = new GLTFLoader();
+    const houseNameSuffix = 'building-type-';
+    const allowedRandomCharacter = 'abcdefghijklmno';
+    const random = getRandomNumberInRange(0, 15);
+    const houseGltf = await loader.loadAsync(texturePath + houseNameSuffix + allowedRandomCharacter[random] + '.glb');
 
-  return houseGroup;
+    return houseGltf.scene;
+  }
+
+  private async loadModelFence(index: number, z: number) {
+    const loader = new GLTFLoader();
+    const fenceGltf = await loader.loadAsync('models/city-kit/glb/fence.glb');
+    const f = fenceGltf.scene;
+    f.scale.set(25, 10, 10);
+    f.rotation.y = Math.PI / 2;
+    f.position.set(index * 20 + 10, 0, z);
+
+    return f;
+  }
 }

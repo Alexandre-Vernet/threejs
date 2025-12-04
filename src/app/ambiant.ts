@@ -10,6 +10,6 @@ export const ambiant = (scene: T.Scene<T.Object3DEventMap>) => {
   const sun = new T.Mesh(sunGeometry, sunMaterial);
   sun.rotation.x = -Math.PI / 2;
   sun.position.set(-3, 20, -0.5);
-  scene.add(sun);
+  // scene.add(sun);
 
 }

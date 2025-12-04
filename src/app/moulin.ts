@@ -32,7 +32,7 @@ export const moulin = () => {
   rightWing.rotation.z =  Math.PI / 4;
 
 
-  moulinGroup.position.set(-5, 1, -10);
+  moulinGroup.position.set(0, 1, 50);
 
   return moulinGroup;
 }
